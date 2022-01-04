@@ -42,8 +42,19 @@ fulldf.filter(axis=0, regex="^100.$") # access rows 1000-1009
 ###########################################
 # STEP 2: REMOVE AND FIX COLUMNS
 ###########################################
+data.drop(0, inplace=True) # data.drop(labels=[0]) # drops the first row
+data.drop('id', axis=1, inplace=True) # data.drop(columns=['id']) # drops that column
+data = pd.read_csv('artwork_sample.csv', usecols=['artist', 'title']) # only import specified columns
 
+data.columns # displays column names in a list in a tuple
+data.columns.str.lower() # (x.lower() for x in data.columns) # map(lambda x: x.lower(), data.columns) # convert column titles to lowercase
 
+import re
+data.columns = [re.sub(r'([A-Z])', r'_\1', x).lower() for x in data.columns] # this example converts camelCase to snake_case
+
+data.rename(columns={'thumbnailUrl': 'thumbnail'}, inplace=True) # this renames with key:value pairs, key is original name, value is new name
+
+# Could also do data.columns, copy list of column names, make changes in that list, then data.columns = that list.
 
 
 ###########################################
