@@ -3,6 +3,7 @@
 # # Working in VS Code, tried using Jupyter Notebook extension for the first time. When I tried running some code, said no compatible kernel for Python 3.10 so needed to launch/install ipykernel? But clicked okay, everything installed, and then my code worked. Good for visualization so tested each line of code there, but larger file, so not uploading it to GitHub.
 
 import pandas as pd
+from numpy import nan   # used in Step 4
 
 data = pd.read_csv('artwork_sample.csv')
 fulldf = pd.read_csv('artwork_data.csv', low_memory=False)
@@ -86,3 +87,22 @@ data.loc[data.medium.str.contains('graphite', na=False, case=False), ['artist','
 ###########################################
 # STEP 4: HANDLE BAD DATA
 ###########################################
+data.replace({'dateText': {'date not known': nan}}, inplace=True) # in ‘dateText’ column, replace ‘date not known’ with nan
+data.loc[data.dateText == 'date not known', ['dateText']] = nan		# same functionality as above example
+
+fulldf.loc[fulldf.year.notnull() & fulldf.year.astype(str).str.contains('[^0-9]')] # dataFrame only including rows where 'year' is already not a number BUT contains something not a number
+fulldf.loc[fulldf.year.notnull() & fulldf.year.astype(str).str.contains('[^0-9]'), ['year']] = nan	# find where ‘year’ is already not a number BUT contains something not a number AND change that to NaN
+# data.dateText
+
+data.fillna(0) # replace all occurrences everywhere of NaN with 0
+data.fillna(value={'depth': 0}, inplace=True) # in ‘depth’ column, NaN => 0
+
+fulldf.shape # to see number of rows (69201, 20)
+fulldf.dropna(inplace=True) # inplace=True needed to change the dataFrame BUT this drops ALL rows with 1 or more na/nan value
+fulldf.dropna(thresh=15).shape # (66379,20) threshold removes rows with number of values >= na/nan 
+fulldf.dropna(subset=['year','acquisitionYear'],how='all').shape # (69198,20) removes rows with na/nan values in both columns. If I did not set how, either column (63781, 20).
+
+data.drop_duplicates(subset=['artist', 'medium'], keep='first').shape # drops rows with repeated artists but keep='first' (or 'last' or False (keep no duplicates)). So 9 rows with 2 artists reduced to 4 rows. To change the dataFrame, need inplace=True inside the function.
+
+fulldf.loc[fulldf.duplicated(subset=['artist','title'], keep=False)] # dataFrame with only the repeated artists AND titles
+fulldf.loc[fulldf.title.str.contains('Circle of the Lustful')] # display dataFrame, see how many of a specific duplicate and what is different
